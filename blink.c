@@ -39,9 +39,14 @@ void task_button_process(void *pvParameters) {
     while (true) {
         // Espera receber o estado do botão da fila
         if (xQueueReceive(button_queue, &received_button_state, portMAX_DELAY) == pdTRUE) {
+            // Se o botão foi pressionado, libera o semáforo para acionar a Tarefa 3
+            // Se não, também libera o semáforo, mas com um valor diferente para indicar que o LED deve apagar
             if (received_button_state) {
-                // Se o botão foi pressionado, libera o semáforo para acionar a Tarefa 3
-                xSemaphoreGive(led_semaphore);
+                xSemaphoreGive(led_semaphore); // Sinaliza para acender
+            } else {
+                //Envia um sinal com valor negativo para desligar o led
+                 long apagado = -1;
+                 xSemaphoreGive(led_semaphore);
             }
         }
     }
@@ -54,17 +59,21 @@ void task_led_control(void *pvParameters) {
 
     while (true) {
         // Espera o semáforo ser liberado
-        xSemaphoreTake(led_semaphore, portMAX_DELAY);
-        // Acende o LED
-        led_state = true;
-        gpio_put(LED_PIN, led_state);
-        printf("LED ligado!\n");
-        vTaskDelay(pdMS_TO_TICKS(1000)); // LED fica ligado por 1 segundo
-        // Apaga o LED
-        led_state = false;
-        gpio_put(LED_PIN, led_state);
-        printf("LED desligado!\n");
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo desligado
+        if( xSemaphoreTake(led_semaphore, portMAX_DELAY) == pdTRUE ) {
+
+             if (button_state) {  // Se o botão está pressionado acende o led
+                led_state = true;
+                gpio_put(LED_PIN, led_state);
+                printf("LED ligado!\n");
+             } else {
+                led_state = false;
+                gpio_put(LED_PIN, led_state);
+                printf("LED desligado!\n");
+             }
+
+             vTaskDelay(pdMS_TO_TICKS(10)); // Delay pequeno para não travar a tarefa
+        }
+
     }
 }
 
@@ -90,9 +99,10 @@ int main() {
     xTaskCreate(task_button_process, "ButtonProcess", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
     xTaskCreate(task_led_control, "LEDControl", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 
-    // Inicia o escalonador do FreeRTOS
+    // Inicia o scheduler do FreeRTOS
     vTaskStartScheduler();
 
+    // O código nunca deve chegar aqui
     while (true) {
         printf("Erro! Scheduler finalizado!\n");
     }
