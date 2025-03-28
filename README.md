@@ -126,7 +126,7 @@ Quando Usar o Quê?
 
 Use um Semáforo Binário:
 
-Quando você precisa sinalizar um evento (ex: "dados disponíveis", "operação completa").
+Quando você precisa sinalizar um evento (ex: "dados disponíveis", "operação completa"). 
 
 Quando você precisa sincronizar tarefas, mas não precisa garantir que a mesma tarefa que tomou o recurso o libere.
 
@@ -135,3 +135,8 @@ Use um Mutex:
 Quando você precisa proteger um recurso compartilhado e garantir que apenas uma tarefa o acesse por vez.
 
 Quando é importante evitar a inversão de prioridade.
+
+------------------------------------          ------------------------------------
+
+Video no YouTube do projeto em funcionamento: 
+https://youtu.be/E4AqXW6z5XE?si=Y3BsEmeDbnzNNuDI
