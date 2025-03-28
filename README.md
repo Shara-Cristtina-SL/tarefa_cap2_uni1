@@ -118,3 +118,20 @@ A task_button_process espera por um novo estado do botão na fila. Ao receber, l
 A task_led_control espera o semáforo led_semaphore ser liberado. Quando isso acontece, ela checa o estado global do botão (button_state) e acende ou apaga o LED de acordo.
 
 O sistema repete continuamente.
+
+
+------------------------------------          ------------------------------------
+Observação:
+Quando Usar o Quê?
+
+Use um Semáforo Binário:
+
+Quando você precisa sinalizar um evento (ex: "dados disponíveis", "operação completa").
+
+Quando você precisa sincronizar tarefas, mas não precisa garantir que a mesma tarefa que tomou o recurso o libere.
+
+Use um Mutex:
+
+Quando você precisa proteger um recurso compartilhado e garantir que apenas uma tarefa o acesse por vez.
+
+Quando é importante evitar a inversão de prioridade.
